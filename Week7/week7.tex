@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide,parskip}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\titleformat{\section}{\normalfont\fontsize{12}{15}\bfseries}{\thesection}{1em}{}
+
+\begin{document}
+
+\centerline{\Large R209 Essay:  Cryptographic Protocols}
+\vspace{2em}
+\centerline{\large Chongyang Shi (\emph{cs940})}
+\vspace{1em}
+\centerline{\large \today}
+\vspace{1em}
+
+\section{Summaries of research}
+
+The classic paper by Burrows et al. \cite{burrows1989logic} produced formalised logic to verify the security of published authentication protocols at the time. The paper started by setting out postulates and important distinctions in the logic, as well as rules for idealising protocols and deriving legal annotations. Taking into account formalised goals of authentication protocols, they proceeded to verify published authentication protocols in a process of idealising the protocol, checking \textbf{believes} and \textbf{sees} at each stage of the protocol, and verifying resulting states. Various subtle differences between protocols leading to insecurities were discovered in the process. A possible critique to the logic used is the assumption that all beliefs are equally weighted, which may not be the case in practice, due to varying reliabilities of knowledges leading to these beliefs. For example, the risk of client and server clocks going out of synchronisation is greater than a public key prime number being factorised, even though both will invalidate corresponding beliefs.
+
+The book chapter by Anderson \cite{anderson2010security} produced a survey on attacks on systems whose security components are separated and interact through APIs, with case studies to illustrate recurring vulnerabilities. Past vulnerabilities described include hardware security modules exploited by replaying past encrypted keys or planting chosen MAC keys; decryption of IBM 4758 DES through a meet-in-the-middle birthday attack; and attacks on system call wrappers by exploiting the concurrent nature of modern processors. As many of the vulnerabilities discussed were exploited via transactions that are not widely used or necessary features, the author concluded by calling for minimal inclusion of transactions in secure modules. A possible alternative structure of the chapter is to organise sections by recurring vulnerability, such as the chosen zero plain text attack used on both VSM and IBM PIN generation, and draw case studies to illustrate how each recurring vulnerability has been exploited in different ways.
+
+A recent paper by Beurdouche et al. \cite{beurdouche2015messy} demonstrated vulnerabilities in state machines of popular TLS implementations. Based on a reference state machine produced from TLS specifications, they performed automated protocol-aware state machine fuzzing on the state machines of TLS implementations. They discovered various flaws in these implementations that can allow server and client impersonation, rolling back forward secrecy, and protocol downgrade attacks. The authors also produced a verified state machine of their own that is secure from these flaws. They concluded with a discussion on challenges faced in achieving full security theorems for OpenSSL. Through responsible disclosure, developers of TLS implementations tested have produced patches for the vulnerabilities identified.
+
+\section{Key themes of research}
+
+\subsection{Reliability of protocol assumptions}
+
+For security protocol designers, it is nearly always necessary for them to make a set of assumptions on the parties involved in the protocol, as well as the environment in which the protocol resides. Examples of such assumptions can be seen in Burrows et al. \cite[Sec. 1, 2.2]{burrows1989logic}, which assumes that both parties of the authentication are trustworthy, and are using secure encryptions with their secret keys. However, sometimes these assumptions can be over-optimistic and lead to security issues in imperfect implementations, such as system call wrappers being only secure on non-concurrent processors \cite[18.3]{anderson2010security} and TLS assuming strict message ordering and distinguishable optional messages \cite[Sec. II]{beurdouche2015messy}.
+
+\subsection{Unverified information should not be trusted}
+
+Cryptographic protocols often break when unverified external information are relied upon to perform secure functionalities. The idealisation process applied to authentication protocols by Burrows et al. \cite[2.4]{burrows1989logic} strips out clear text messages, as they can be easily forged. If the timing and origin of terminal key-producing transactions can be verified by VSM, the XOR-to-null-key attack described by Anderson \cite[18.2.1]{anderson2010security} would be a lot harder to perform. Unauthenticated \emph{ServerFinished} messages also allow server impersonation by an attacker against the Java TLS implementation, as described by Beurdouche et al. \cite[V-A]{beurdouche2015messy}.
+
+\subsection{Unnecessary components in authentication protocols}
+In some cases, not all parts of a cryptographic protocol are useful to a user, and their inclusion may impact performance or even introduce vulnerabilities. Formal logic analysis by Burrows et al. \cite[4.1, 5.1]{burrows1989logic} discovered unnecessary procedures in both Kerberos and Andrew file system that could reduce performance. Anderson \cite{anderson2010security} highlighted several vulnerabilities in hardware security modules brought in through implementing normally unnecessary transactions. Anderson also recommended module implementers to carefully minimise transactions. Rarely used insecure ciphersuites included by TLS implementations for backwards compatibility have also allowed some downgrade attacks to take place \cite[V-D]{beurdouche2015messy}.
+
+\section{Ideas in current context}
+
+Burrows et al. \cite[6.1]{burrows1989logic} noted the reliance on the third-party key server to correctly sign certificates and generate fresh secrets in the Needham-Schroeder protocol \cite{needham1978using}. This is no longer a common feature in modern public key systems owing to developments in attacks against communications between the client and the key server, such as DNS poisoning of the key server's hostname. The role of a modern public key server such as a PGP key server is limited to distributing public keys and revocation notices of clients \cite[4.3]{whitten1999johnny}. Some other protocols are still in wide-use today, such as Kerberos and X.509, with continuing security improvements.
+
+In security verification of authentication protocols, Burrows et al. \cite[2.5]{burrows1989logic} utilised logical formulas analogical to Hoare logic, which has also been part of bases for a wide range of formal languages, such as the communicating sequential processes (CSP) \cite{lamport1984hoare}. Designed for describing distributed programs, CSP has been used in conjunction with model checkers for detecting errors in key exchange protocols. Lowe  \cite{lowe1996breaking} in 1996 used CSP to discover a flaw in the original Needham-Schroeder public key protocol, and subsequently proved the security of his adapted version of the protocol. Similar analysis has been done by Lowe and Roscoe \cite{lowe1997using} on the TMN protocol in 1997. 
+
+There have been developments in mitigating Time-Of-Check-To-Time-Of-Use (TOCTTOU) attacks discovered by Watson \cite{watson2007exploiting} as mentioned. Mitigations are achieved through sandboxing, which can be done on threads by verifying individual instructions \cite{payer2011fine}, or on user-level through delegation \cite{xu2012aurasium}. These mitigations techniques allow system call wrappers on modern concurrent hardware to be more resilient against timing attacks. They however still suffer from other disadvantages mentioned by Anderson \cite[18.3]{anderson2010security} such as high complexity.
+
+\section{Literature review}
+
+The formal logic-based methodology developed by Burrows et al. \cite{burrows1989logic} has been the bases of correctness proofs of other modern security protocols, such as secure routing for mobile ad hoc networks \cite{papadimitratos2002secure}. However, this method has also been criticised due to is inability in capturing flaws not reasoned by the underlying logic \cite{bellare1993entity}. Flaws identified by Burrows et al. also became a good guideline for avoiding common flaws when designing new protocols, such as by Diffie et al. \cite{diffie1992authentication}.
+
+Hardware security modules (HSMs) as discussed by Anderson \cite{anderson2010security} have also been implemented for vehicular communication security, such as by Kargl et al. \cite{kargl2008secure}, who formally verified that their HSM API is secure against root key implanting and key revealing attacks. A notable further security analysis on EMV smartcards by Bond et al. \cite{bond2014chip} discovered critical flaws in the generation and verification processes of random numbers, significantly reducing perceived security of EMV systems. Yang et al. \cite{yang2012concurrency} gave a comprehensive analysis on the state of operating system concurrency attacks in 2012. 
+
+Security analysis of TLS implementations by Beurdouche et al. \cite{beurdouche2015messy} attracted significant academic interest. Another TLS downgrade attack (``Logjam'') was discovered by Adrian et al. \cite{adrian2015imperfect}, based on a vulnerability of the TLS protocol itself rather than its implementations, rendering export-grade Diffie-Hellman ciphersuites fully insecure. While not strictly a downgrade attack, Aviram et al. \cite{aviram2016drown} developed another implementation-independent attack (``DROWN'') leveraging SSLv2 to decrypt TLS data on a server that supports the legacy SSLv2.
+
+\emph{(1212 words according to texcount.)}
+
+\bibliographystyle{IEEEtran}
+\footnotesize{\bibliography{week7}}
+
+
+\end{document}
