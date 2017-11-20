@@ -22,17 +22,27 @@ The article by Bessey et al. \cite{bessey2010few} introduced notable observation
 
 The survey paper by Szekeres et al. \cite{szekeres2013sok} summarised common mitigations against memory corruption bugs, as well as performance overheads, compatibility issues, and attack vectors associated with each mitigation technique. Starting by introducing common types of memory corruption attacks, the authors first gave an overview on protection systems in use based on both probabilistic protection and deterministic protection. After discussing important metrics as well as tradeoffs in cost and compatibility, they further described how current systems measure in these aspects. They also covered defences against generic attacks and control-flow hijack attacks. The authors concluded by highlighting performance and compatibility constraints in current systems which prevent their wide adoption. A critique for this paper concerns on its lack of clarity in structure, such as the repeated description and discussion of stack smashing protection \cite[III, VIII-B]{szekeres2013sok}.
 
-
-
 \section{Key themes of research}
 
 \subsection{Laboratory theory versus real-world practice}
 
+When a system or technique evaluates well under laboratory conditions, it may not perform as well or face operational difficulties ``in the field''. A  assumption made during seL4's development process before 2009 is the uniprocessor runtime environment, which was required in order to model correctness without concurrency constraints \cite[3.3]{klein2009sel4}. With modern processors featuring multiple cores, this is no longer feasible in performance aspects. On a different aspect, Bessey et al. \cite[pp. 69-70]{bessey2010few} noted how compiler deviations from language standards caused difficulties to the one-solution-fits-all research model. Szekeres et al.\ also described the lack of industrial adoption of memory corruption defences due to their significant performance penalties and incompatibilities \cite[I, IV-C]{szekeres2013sok}.
+
 \subsection{Security versus cost}
+
+A source of strong resistance against wider adoption of error verification and mitigation is the potential cost involved for stakeholders. Fundamental redesigns to existing kernel features are very costly to verify under the verified microkernel by Klein et al. \cite[5.3]{klein2009sel4}, which is unfortunately a common occurrence in the industry \cite{israeli2010linux}. Bessey et al. \cite[p. 73]{bessey2010few} noted how upgraded systems leading to more bugs being detected can cost the stakeholder managers their bonuses. On performance aspect of cost, Szekeres et al. \cite[V-A]{szekeres2013sok} raised the example of a 10\% performance penalty preventing most programs from being compiled as Position Independent Executables (PIE).
 
 \subsection{Benefits of using an intermediate representation}
 
+A more subtle theme seen across the three papers is the potential benefits of using intermediate representations. Klein et al. \cite[2.2, 5.2]{klein2009sel4} used a Haskell prototype as an executable model prior to optimisation, which saved significant cost in verification and allowed them to take advantage of existing toolchains and experience. When analysing C\# and Java bytecode compiled from the source, Bessey et al. \cite[p. 72]{bessey2010few} had a much easier time without having to navigate compiler deviations. The technique providing the highest level of memory corruption protection (SoftBound\&CETS) represented new objects with unique identifiers to improve memory performance \cite[VI-C]{szekeres2013sok}. 
+
 \section{Ideas in current context}
+
+In order to address the uniprocessor limitations of seL4 as discussed, a followup research by Tessin \cite{von2012clustered} presented the \emph{clustered multikernel} approach in order to provide verifiable multiprocessor kernels. In addition, Tessin developed a lifting framework to transform verified uniprocessor microkernels to support multiprocessing with minor modifications. This approach saved a large amount of effort in developing a verifiable multiprocessor kernel from scratch.
+
+Intermediate representations have been further utilised to improve program analysis to search for errors and security violations, as demonstrated by the Static Analysis Intermediate Language (SAIL) \cite{dillig2009sail}. The two-level intermediary design of SAIL preserve both syntactical error reporting capabilities and the ability to perform semantical analysis to find errors. A similar intermediate representation scheme was used by Dullien and Porst \cite{dullien2009reil} to perform platform-independent security auditing and vulnerability detection.
+
+Bessey et al. \cite{bessey2010few} faced significantly problems when a varying range of C/C++ compilers fail to observe strict language standards, causing false-positive error reports. An alternative error-finding approach has since emerged, combining the classic bounded model checking (BMC) approach with LLVM intermediate representation to offset the complexities of modern language features introduced by C/C++ which previously made BMC difficult \cite{merz2012llbmc}. This approach is also able to find bugs introduced by compilers -- another advantage addressing their complaints.
 
 \section{Literature review}
 
