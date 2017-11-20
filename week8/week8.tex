@@ -16,13 +16,21 @@
 
 \section{Summaries of research}
 
+The paper by Klein et al. \cite{klein2009sel4} discussed the design and construction process of a formally verified general-purpose L4 microkernel, \emph{seL4}. In order to ensure the functional-correctness of the microkernel, thorough care had been taken by the authors to design seL4's programming model while minimising the introduced complexities in verification. A three-level refinement process was used -- a Haskell-based executable model implements the full functionality of the microkernel's abstract specification, which is then optimised for performance in a C implementation. Isabelle/HOL was used in an interactive verification process to ensure functional-correctness. The resulting microkernel is comparable in performance to other L4 kernels, while imposing a reasonable materialistic cost in verification. As a potential improvement to the paper, more discussions on the impact of design decisions on the programmer's ability to write concise and efficient code for the kernel could be included.
+
+The article by Bessey et al. \cite{bessey2010few} introduced notable observations and unique challenges faced by the authors in the process of commercialising a static analysis-based bug-finding tool. Their product applies an unsound traversal on the target codebase to find as many errors as possible. After the product was adapted for use on large commercial codebases, caveats including as integrating with different build systems, dealing with compilers and runtime environments not compliant with language standards, and working with misinformed users as well as commercial demands were identified by the authors, along with some attempts to address these challenges. A possible extension to this paper is discussion on whether code written in languages with tighter ecosystems such as Apple's Objective-C are easier for static analysis in the field.
+
+The survey paper by Szekeres et al. \cite{szekeres2013sok} summarised common mitigations against memory corruption bugs, as well as performance overheads, compatibility issues, and attack vectors associated with each mitigation technique. Starting by introducing common types of memory corruption attacks, the authors first gave an overview on protection systems in use based on both probabilistic protection and deterministic protection. After discussing important metrics as well as tradeoffs in cost and compatibility, they further described how current systems measure in these aspects. They also covered defences against generic attacks and control-flow hijack attacks. The authors concluded by highlighting performance and compatibility constraints in current systems which prevent their wide adoption. A critique for this paper concerns on its lack of clarity in structure, such as the repeated description and discussion of stack smashing protection \cite[III, VIII-B]{szekeres2013sok}.
+
+
+
 \section{Key themes of research}
 
-\subsection{Reliability of protocol assumptions}
+\subsection{Laboratory theory versus real-world practice}
 
-\subsection{Unverified information should not be trusted}
+\subsection{Security versus cost}
 
-\subsection{Unnecessary components in authentication protocols}
+\subsection{Benefits of using an intermediate representation}
 
 \section{Ideas in current context}
 
